@@ -238,7 +238,7 @@ mwan3_set_policies_iptables()
 
 mwan3_set_user_rules_iptables()
 {
-	local proto src_ip src_port dest_ip dest_port use_policy
+	local proto src_ip src_port dest_ip dest_port use_policy dscp_match
 
 	config_get proto $1 proto all
 	config_get src_ip $1 src_ip 0.0.0.0/0
@@ -246,6 +246,7 @@ mwan3_set_user_rules_iptables()
 	config_get dest_ip $1 dest_ip 0.0.0.0/0
 	config_get dest_port $1 dest_port 0:65535
 	config_get use_policy $1 use_policy
+	config_get dscp_match $1 dscp_match
 
 	if [ -n "$use_policy" ]; then
 		if [ "$use_policy" == "default" ]; then
@@ -254,14 +255,18 @@ mwan3_set_user_rules_iptables()
 			use_policy="MARK --set-xmark 0xfe00/0xff00"
 		else
 			use_policy="mwan3_policy_$use_policy"
+		if
+		
+		if [ -n "$dscp_match" ]; then
+			dscp_match="-m dscp --dscp $dscp_match"
 		fi
-
+		
 		case $proto in
 			tcp|udp)
-			iptables -A mwan3_rules -t mangle -p $proto -s $src_ip -d $dest_ip -m multiport --sports $src_port -m multiport --dports $dest_port -m mark --mark 0/0xff00 -m comment --comment "$1" -j $use_policy &> /dev/null
+			iptables -A mwan3_rules -t mangle -p $proto -s $src_ip -d $dest_ip -m multiport --sports $src_port -m multiport --dports $dest_port -m mark --mark 0/0xff00 $dscp_match -m comment --comment "$1" -j $use_policy &> /dev/null
 			;;
 			*)
-			iptables -A mwan3_rules -t mangle -p $proto -s $src_ip -d $dest_ip -m mark --mark 0/0xff00 -m comment --comment "$1" -j $use_policy &> /dev/null
+			iptables -A mwan3_rules -t mangle -p $proto -s $src_ip -d $dest_ip -m mark --mark 0/0xff00 $dscp_match -m comment --comment "$1" -j $use_policy &> /dev/null
 			;;
 		esac
 	fi
