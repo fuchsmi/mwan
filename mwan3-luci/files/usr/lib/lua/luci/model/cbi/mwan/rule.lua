@@ -120,6 +120,12 @@ ipset = mwan_rule:option(DummyValue, "ipset", translate("IPset"))
 	function ipset.cfgvalue(self, s)
 		return self.map:get(s, "ipset") or "&#8212;"
 	end
+	
+dscp_match = mwan_rule:option(DummyValue, "dscp_match", translate("DSCP match"))
+	dscp_match.rawhtml = true
+	function dscp_match.cfgvalue(self, s)
+		return self.map:get(s, "dscp_match") or "&#8212;"
+	end
 
 use_policy = mwan_rule:option(DummyValue, "use_policy", translate("Policy assigned"))
 	use_policy.rawhtml = true
